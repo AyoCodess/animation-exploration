@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ArchiveIcon, MailIcon } from '@heroicons/react/outline';
 import { AnimatePresence, motion } from 'framer-motion';
 import { type } from 'os';
+import classNames from 'classnames';
 
 let titles = [
   ["Apple's newest iPhone is here", 'Watch our July event'],
@@ -21,7 +22,7 @@ let titles = [
 
 export default function EmailClient() {
   const [messages, setMessages] = useState([...Array(9).keys()]);
-  const [selectedMessage, setSelectedMessage] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState<number[]>([]);
 
   function addMessage() {
     let newId = (messages.at(-1) || 0) + 1;
@@ -29,11 +30,11 @@ export default function EmailClient() {
   }
 
   function archiveMessage(mid: number) {
-    setMessages((messages) => messages.filter((id) => id !== mid));
+    setMessages((messages: number[]) => messages.filter((id) => id !== mid));
   }
 
   function selectMessage(mid: number) {
-    setSelectedMessage((messages) => [...messages, mid]);
+    setSelectedMessage((messages: number[]) => [...messages, mid]);
   }
 
   return (
@@ -58,7 +59,7 @@ export default function EmailClient() {
           </div>
           <ul className="overflow-y-scroll px-3 pt-2">
             <AnimatePresence initial={false}>
-              {[...messages].reverse().map((mid) => {
+              {[...messages].reverse().map((mid: number) => {
                 return (
                   <motion.li
                     initial={{ opacity: 0, height: 0 }}
@@ -74,12 +75,29 @@ export default function EmailClient() {
                     <div className="py-0.5">
                       <button
                         onClick={() => selectMessage(mid)}
-                        className="block w-full cursor-pointer truncate rounded py-3 px-3 text-left hover:bg-slate-200"
+                        className={classNames(
+                          'block w-full cursor-pointer truncate rounded py-3 px-3 text-left ',
+
+                          { 'bg-blue-400': selectedMessage.includes(mid) },
+                          {
+                            'hover:bg-slate-200': !selectedMessage.includes(mid)
+                          }
+                        )}
                       >
-                        <p className="truncate text-sm font-medium text-slate-500">
+                        <p
+                          className={classNames(
+                            'truncate text-sm font-medium text-slate-500',
+                            { 'text-white': selectedMessage.includes(mid) }
+                          )}
+                        >
                           {titles[mid % titles.length][0]}
                         </p>
-                        <p className="truncate text-xs text-slate-400">
+                        <p
+                          className={classNames(
+                            'truncate text-xs text-slate-400',
+                            { 'text-white': selectedMessage.includes(mid) }
+                          )}
+                        >
                           {titles[mid % titles.length][1]}
                         </p>
                       </button>
